@@ -6,7 +6,7 @@ namespace Entidades.MetodosDeExtension
     public static class IngredientesExtension
     {
 
-        public static double CalcularCostoIngredientes(List<EIngrediente> ingredientes, int costoInicial)
+        public static double CalcularCostoIngredientes(this List<EIngrediente> ingredientes, int costoInicial)
         {
             double precioFinal = 0.0;
 
@@ -19,7 +19,7 @@ namespace Entidades.MetodosDeExtension
 
             return precioFinal;
         }
-        public static List<EIngrediente> IngredientesAleatorios(Random rand)
+        public static List<EIngrediente> IngredientesAleatorios(this Random rand)
         {
             List<EIngrediente> ingredientes = new List<EIngrediente>()
             {
