@@ -8,19 +8,21 @@ using Entidades.DataBase;
 
 namespace Entidades.Modelos
 {
-    public class Hamburguesa 
+    public class Hamburguesa : IComestible
     {
-
+        private double costo;
         private static int costoBase;
         private bool esDoble;
-        private double costo;
         private bool estado;
         private string imagen;
         List<EIngrediente> ingredientes;
         Random random;
+
+        public bool Estado { get; }
+        public string Imagen { get; }
+        public string Ticket => $"{this}\nTotal a pagar:{this.costo}";
+
         static Hamburguesa() => Hamburguesa.costoBase = 1500;
-
-
         public Hamburguesa() : this(false) { }
         public Hamburguesa(bool esDoble)
         {
@@ -28,13 +30,27 @@ namespace Entidades.Modelos
             this.random = new Random();
         }
 
-        public string Ticket => $"{this}\nTotal a pagar:{this.costo}";
-
-
-
         private void AgregarIngredientes()
         {
-      
+            ingredientes = new List<EIngrediente>(random.IngredientesAleatorios());
+        }
+
+        public void FinalizarPreparacion(string cocinero)
+        {
+            this.costo = this.ingredientes.CalcularCostoIngredientes(costoBase);
+            this.estado = false;
+        }
+
+        public void IniciarPreparacion()
+        {
+            if (!this.estado)
+            {
+                int hamburguesaAleatoria = random.Next(1, 9);
+                string tipoHamburguesa = $"Hamburguesa_{hamburguesaAleatoria}";
+                this.imagen = DataBaseManager.GetImagenComida(tipoHamburguesa);
+                this.estado = true;
+                AgregarIngredientes();
+            }
         }
 
         private string MostrarDatos()
@@ -44,24 +60,8 @@ namespace Entidades.Modelos
             stringBuilder.AppendLine("Ingredientes: ");
             this.ingredientes.ForEach(i => stringBuilder.AppendLine(i.ToString()));
             return stringBuilder.ToString();
-
         }
-
-
 
         public override string ToString() => this.MostrarDatos();
-
-        public void FinalizarPreparacion(string cocinero)
-        {
-
-        }
-
-        public void IniciarPreparacion()
-        {
-            if (!this.estado)
-            {
-
-            }
-        }
     }
 }
