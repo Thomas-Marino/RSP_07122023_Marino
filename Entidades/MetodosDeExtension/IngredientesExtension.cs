@@ -13,11 +13,11 @@ namespace Entidades.MetodosDeExtension
             foreach (var ingrediente in ingredientes)
             {
                 int precioIngrediente = (int)ingrediente;
-                int incremento = costoInicial * precioIngrediente / 100;
+                int incremento = (costoInicial * precioIngrediente)/ 100;
                 precioFinal += incremento;
             }
 
-            return precioFinal;
+            return precioFinal + costoInicial;
         }
         public static List<EIngrediente> IngredientesAleatorios(this Random rand)
         {
