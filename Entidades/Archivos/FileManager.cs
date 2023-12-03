@@ -23,6 +23,7 @@ namespace Entidades.Files
             ValidaExistenciaDeDirectorio();
         }
 
+        #region "Metodos"
         private static void ValidaExistenciaDeDirectorio()
         {
             if (!Directory.Exists(path))
@@ -33,6 +34,7 @@ namespace Entidades.Files
                 }
                 catch (Exception ex)
                 {
+                    Guardar(ex.Message, "logs", true);
                     throw new FileManagerException("Error al crear el directorio");
                 }
             }
@@ -62,8 +64,10 @@ namespace Entidades.Files
             }
             catch (Exception ex)
             {
-                throw new FileManagerException($"Error al serializar: {ex.Message}");
+                Guardar(ex.Message, "logs", true);
+                throw new FileManagerException($"Error al serializar.");
             }
         }
+        #endregion
     }
 }
