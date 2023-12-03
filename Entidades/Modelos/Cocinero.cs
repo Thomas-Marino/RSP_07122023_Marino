@@ -1,22 +1,27 @@
-﻿using Entidades.Exceptions;
+﻿using Entidades.DataBase;
+using Entidades.Exceptions;
 using Entidades.Files;
 using Entidades.Interfaces;
 
 
 namespace Entidades.Modelos
 {
-    public class Cocinero
+    public delegate void DelegadoDemoraAtencion(double demora);
+    public delegate void DelegadoNuevoIngreso(IComestible menu);
+
+    public class Cocinero<T> where T : IComestible, new()
     {
-        private int cantPedidosFinalizados;
-        private string nombre;
-        private double demoraPreparacionTotal;
         private CancellationTokenSource cancellation;
 
+        private int cantPedidosFinalizados;
+        private double demoraPreparacionTotal;
+
+        private T menu;
+        private string nombre;
         private Task tarea;
 
-
-
-
+        public event DelegadoDemoraAtencion OnDemora;
+        public event DelegadoNuevoIngreso OnIngreso;
 
         public Cocinero(string nombre)
         {
@@ -53,20 +58,41 @@ namespace Entidades.Modelos
 
         private void IniciarIngreso()
         {
-
+            cancellation = new CancellationTokenSource();
+            Task.Run(() =>
+            {
+                while (!cancellation.Token.IsCancellationRequested)
+                {
+                    NotificarNuevoIngreso(); // Metodo que instanciará e invocará un nuevo menu
+                    EsperarProximoIngreso();
+                    cantPedidosFinalizados += 1;
+                    DataBaseManager.GuardarTicket(this.nombre, this.menu);
+                }
+            });
         }
 
         private void NotificarNuevoIngreso()
         {
-
+            if (this.OnIngreso is not null)
+            {
+                menu = new T();
+                menu.IniciarPreparacion();
+                this.OnIngreso.Invoke(menu);
+            }
         }
         private void EsperarProximoIngreso()
         {
             int tiempoEspera = 0;
 
-
+            if (this.OnIngreso is not null)
+            {
+                while (!cancellation.Token.IsCancellationRequested && menu.Estado == false)
+                {
+                    Thread.Sleep(1000);
+                    tiempoEspera++;
+                }
+            }
             this.demoraPreparacionTotal += tiempoEspera;
-
         }
     }
 }
