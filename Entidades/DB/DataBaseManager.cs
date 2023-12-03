@@ -31,9 +31,9 @@ namespace Entidades.DataBase
                     connection.Open();
                     SqlDataReader reader = command.ExecuteReader();
 
-                    if (reader.HasRows)
+                    if (reader.Read())
                     {
-                        return reader.GetString(2);
+                        return reader.GetString(0);
                     }
                     else
                     {
