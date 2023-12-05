@@ -17,6 +17,16 @@ namespace Entidades.DataBase
         }
 
         #region "Métodos"
+        /// <summary>
+        /// Método encargado de consultar la base de datos para obtener la ruta de la imagen 
+        /// asociada a un tipo de comida dentro de la BD.
+        /// </summary>
+        /// <param name="tipo">Tipo de comida a buscar en la base de datos.</param>
+        /// <returns>
+        /// Si el tipo de comida ingresado coincide con un tipo de comida dentro de la base de datos
+        /// el método retornará la url de la imagen de ese tipo de comida como string.
+        /// </returns>
+        /// <exception cref="DataBaseManagerException"></exception>
         public static string GetImagenComida(string tipo)
         {
             try
@@ -52,7 +62,17 @@ namespace Entidades.DataBase
                 throw new DataBaseManagerException("Error al leer la base de datos intentando obtener la imagen de la comida.");
             }
         }
-
+        /// <summary>
+        /// Método encargado de guardar en la base de datos la información de la comida preparada y del empleado que la preparó.
+        /// </summary>
+        /// <typeparam name="T">Tipo de objeto que implementa la interfaz IComestible y tiene un constructor sin parámetros.</typeparam>
+        /// <param name="nombreEmpleado">Nombre del empleado encargado de preparar la comida.</param>
+        /// <param name="comida">Comida a ser preparada.</param>
+        /// <returns>
+        /// True si el ticket pudo ser guardado en la base de datos.
+        /// Caso contrario el método arrojará una excepción.
+        /// </returns>
+        /// <exception cref="DataBaseManagerException"></exception>
         public static bool GuardarTicket<T>(string nombreEmpleado, T comida) where T : IComestible, new()
         {
             try
@@ -78,7 +98,6 @@ namespace Entidades.DataBase
                 throw new DataBaseManagerException("Error al modificar la base de datos intentando guardar un ticket.");
             }
         }
-
         #endregion
     }
 }
