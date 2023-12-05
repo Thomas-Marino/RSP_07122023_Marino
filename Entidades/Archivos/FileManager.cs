@@ -24,6 +24,11 @@ namespace Entidades.Files
         }
 
         #region "Metodos"
+        /// <summary>
+        /// Método encargado de verificar que exista un directorio vital en el cual se almacenaran los archivos
+        /// que creará el programa. En el caso de no existir, los creará.
+        /// </summary>
+        /// <exception cref="FileManagerException"></exception>
         private static void ValidaExistenciaDeDirectorio()
         {
             if (!Directory.Exists(path))
@@ -39,23 +44,55 @@ namespace Entidades.Files
                 }
             }
         }
-
+        /// <summary>
+        /// Método encargado de guardar los datos indicados por el usuario dentro de un archivo .txt.
+        /// </summary>
+        /// <param name="data">Datos a guardar.</param>
+        /// <param name="nombreArchivo">Nombre del archivo en el que se guardaran los datos.</param>
+        /// <param name="append">True para añadir los datos sin sobreescribir el archivo, false para añadir los datos sobreescribiendo el arhivo.</param>
+        /// <exception cref="FileManagerException"></exception>
         public static void Guardar(string data, string nombreArchivo, bool append)
         {
-            using (StreamWriter sw = new StreamWriter(Path.Combine(path, $"{nombreArchivo}.txt"), append))
+            try
             {
-                sw.Write(data);
+                using (StreamWriter sw = new StreamWriter(Path.Combine(path, $"{nombreArchivo}.txt"), append))
+                {
+                    sw.Write($"{data}\n");
+                }
+            }
+            catch (Exception ex) 
+            {
+                Guardar(ex.Message, "logs", true);
+                throw new FileManagerException("Errror al guardar los datos");
             }
         }
-
-        public static bool Serializar<T>(T elemento, string nombreArchivo)
+        /// <summary>
+        /// Método encargado de serializar y almacenar los datos de un elemento generico 
+        /// que solo aceptara tipos por referencia.
+        /// </summary>
+        /// <typeparam name="T">Tipo de objeto a serializar</typeparam>
+        /// <param name="elemento">Elemento a serializar.</param>
+        /// <param name="nombreArchivo">Nombre del archivo en el que se almacenaran los datos del elemento.</param>
+        /// <returns>True si pudo serializar los datos del elemento correctamente.
+        /// Caso contrario lanza una excepción.</returns>
+        /// <exception cref="FileManagerException"></exception>
+        public static bool Serializar<T>(T elemento, string nombreArchivo) where T : class
         {
             try
             {
                 JsonSerializerOptions options = new JsonSerializerOptions();
+                int numeroArchivo = 1;
+                string pathArchivo = Path.Combine(path, $"{nombreArchivo}.json");
+
                 options.WriteIndented = true;
 
-                using (StreamWriter sw = new StreamWriter(Path.Combine(path, $"{nombreArchivo}.json")))
+                while (File.Exists(pathArchivo))
+                {
+                    numeroArchivo += 1;
+                    pathArchivo = Path.Combine(path, $"{nombreArchivo}_{numeroArchivo}.json");
+                }
+
+                using (StreamWriter sw = new StreamWriter(pathArchivo))
                 {
                     string datosJson = JsonSerializer.Serialize(elemento, options);
                     sw.Write(datosJson);
