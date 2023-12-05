@@ -26,26 +26,31 @@ namespace FrmView
         //en el formulario los datos de la comida
         private void MostrarComida(IComestible comida)
         {
-
-            this.comidas.Enqueue(comida);
-            this.pcbComida.Load(comida.Imagen);
-            this.rchElaborando.Text = comida.ToString();
-
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke(() => MostrarComida(comida));
+            }
+            else
+            {
+                this.comidas.Enqueue(comida);
+                this.pcbComida.Load(comida.Imagen);
+                this.rchElaborando.Text = comida.ToString();
+            }
         }
-
-
 
         //Alumno: Realizar los cambios necesarios sobre MostrarConteo de manera que se refleje
         //en el fomrulario el tiempo transucurrido
         private void MostrarConteo(double tiempo)
         {
-
-
-            this.lblTiempo.Text = $"{tiempo} segundos";
-            this.lblTmp.Text = $"{this.hamburguesero.TiempoMedioDePreparacion.ToString("00.0")} segundos";
-
-
-
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke(() => MostrarConteo(tiempo));
+            }
+            else
+            {
+                this.lblTiempo.Text = $"{tiempo} segundos";
+                this.lblTmp.Text = $"{this.hamburguesero.TiempoMedioDePreparacion.ToString("00.0")} segundos";
+            }
         }
 
         private void ActualizarAtendidos(IComestible comida)
@@ -55,7 +60,7 @@ namespace FrmView
 
         private void btnAbrir_Click(object sender, EventArgs e)
         {
-            if (!this.hamburguesero.HabilitarCocina)
+            if (this.hamburguesero.HabilitarCocina == false)
             {
                 this.hamburguesero.HabilitarCocina = true;
                 this.btnAbrir.Image = Properties.Resources.close_icon;
@@ -70,7 +75,7 @@ namespace FrmView
 
         private void btnSiguiente_Click(object sender, EventArgs e)
         {
-            if (this.comidas.Count > 0)
+            if (this.comidas.Count != 0)
             {
 
                 IComestible comida = this.comidas.Dequeue();
@@ -87,7 +92,14 @@ namespace FrmView
         private void FrmView_FormClosing(object sender, FormClosingEventArgs e)
         {
             //Alumno: Serializar el cocinero antes de cerrar el formulario
-
+            try
+            {
+                FileManager.Serializar(hamburguesero, hamburguesero.Nombre);
+            }
+            catch (FileManagerException FMException)
+            {
+                MessageBox.Show(FMException.Message, "Error.", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }
