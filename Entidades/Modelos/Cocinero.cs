@@ -56,21 +56,29 @@ namespace Entidades.Modelos
         public string Nombre { get => nombre; }
         public int CantPedidosFinalizados { get => cantPedidosFinalizados; }
 
+        #region "Métodos"
+        /// <summary>
+        /// Ejecutará en un hilo secundario la accion de: NotificarNuevoIngreso, EsperarProximoIngreso, incrementará
+        /// la cantidad de pedidos finalizados en 1 luego de esperar al proximo ingreso y guardará el ticket en la BD.
+        /// </summary>
         private void IniciarIngreso()
         {
-            cancellation = new CancellationTokenSource();
-            Task.Run(() =>
+            this.tarea = Task.Run(() =>
             {
-                while (!cancellation.Token.IsCancellationRequested)
+                while (!this.cancellation.IsCancellationRequested)
                 {
-                    NotificarNuevoIngreso(); // Metodo que instanciará e invocará un nuevo menu
-                    EsperarProximoIngreso();
-                    cantPedidosFinalizados += 1;
+                    this.NotificarNuevoIngreso(); // Metodo que instanciará e invocará un nuevo menu
+                    this.EsperarProximoIngreso();
+                    this.cantPedidosFinalizados += 1;
                     DataBaseManager.GuardarTicket(this.nombre, this.menu);
                 }
-            });
+            }, this.cancellation.Token);
         }
 
+        /// <summary>
+        /// Método encargado de verificar si el evento OnIngreso posee suscriptores.
+        /// En caso exitoso instanciará un nuevo menú, iniciará la preparación del menú y notificará el menú.
+        /// </summary>
         private void NotificarNuevoIngreso()
         {
             if (this.OnIngreso is not null)
@@ -80,19 +88,30 @@ namespace Entidades.Modelos
                 this.OnIngreso.Invoke(menu);
             }
         }
+
+        /// <summary>
+        /// Método encargado de verificar si el evento OnDemora posee suscriptores.
+        /// En caso exitoso se encargará de realizar el incremento del tiempo de espera en 1 por cada segundo
+        /// que pase mientras que el hilo secundario no requiera cancelación y el estado del pedido
+        /// sea false.
+        /// Finalmente establecerá cual fue el tiempo de demora total en la preparación del pedido.
+        /// </summary>
         private void EsperarProximoIngreso()
-        {
+        { 
             int tiempoEspera = 0;
 
-            if (this.OnIngreso is not null)
+            if (this.OnDemora is not null)
             {
-                while (!cancellation.Token.IsCancellationRequested && menu.Estado == false)
+                while (this.menu.Estado == false && !this.cancellation.IsCancellationRequested)
                 {
                     Thread.Sleep(1000);
                     tiempoEspera++;
+                    this.OnDemora.Invoke(tiempoEspera);
                 }
             }
+
             this.demoraPreparacionTotal += tiempoEspera;
         }
+        #endregion
     }
 }
