@@ -18,8 +18,8 @@ namespace Entidades.Modelos
         List<EIngrediente> ingredientes;
         Random random;
 
-        public bool Estado { get; }
-        public string Imagen { get; }
+        public bool Estado { get => this.estado; }
+        public string Imagen { get { return this.imagen; } }
         public string Ticket => $"{this}\nTotal a pagar:{this.costo}";
 
         static Hamburguesa() => Hamburguesa.costoBase = 1500;
@@ -30,17 +30,21 @@ namespace Entidades.Modelos
             this.random = new Random();
         }
 
+        #region "Métodos"
+        /// <summary>
+        /// Método encargado de agregar los ingredientes a la hamburguesa de manera aleatoria.
+        /// </summary>
         private void AgregarIngredientes()
         {
             ingredientes = new List<EIngrediente>(random.IngredientesAleatorios());
         }
 
-        public void FinalizarPreparacion(string cocinero)
-        {
-            this.costo = this.ingredientes.CalcularCostoIngredientes(costoBase);
-            this.estado = false;
-        }
-
+        /// <summary>
+        /// Método que siempre y cuando el estado de la hamburguesa sea false, se encargará de: 
+        /// generar un número aleatorio entre el 1 y 9 y asignar una imagen a la hamburguesa que 
+        /// será displayeada en el formulario dependiendo del número aleatorio y luego llamara 
+        /// al método AgregarIngredientes.
+        /// </summary>
         public void IniciarPreparacion()
         {
             if (!this.estado)
@@ -48,11 +52,27 @@ namespace Entidades.Modelos
                 int hamburguesaAleatoria = random.Next(1, 9);
                 string tipoHamburguesa = $"Hamburguesa_{hamburguesaAleatoria}";
                 this.imagen = DataBaseManager.GetImagenComida(tipoHamburguesa);
-                this.estado = true;
                 AgregarIngredientes();
             }
         }
 
+        /// <summary>
+        /// Método encargado de asignarle el costo a la hamburguesa en relación al costo base
+        /// y a los ingredientes de la misma. Luego cambiará el estado de la hamburguesa.
+        /// </summary>
+        /// <param name="cocinero">Cocinero encargado de preparar la hamburguesa.</param>
+        public void FinalizarPreparacion(string cocinero)
+        {
+            this.costo = this.ingredientes.CalcularCostoIngredientes(costoBase);
+            this.estado = true;
+        }
+
+        /// <summary>
+        /// Método encargado de mostrar los datos de la hamburguesa.
+        /// </summary>
+        /// <returns>
+        /// Datos formateados de la hamburguesa.
+        /// </returns>
         private string MostrarDatos()
         {
             StringBuilder stringBuilder = new StringBuilder();
@@ -63,5 +83,7 @@ namespace Entidades.Modelos
         }
 
         public override string ToString() => this.MostrarDatos();
+
+        #endregion
     }
 }
