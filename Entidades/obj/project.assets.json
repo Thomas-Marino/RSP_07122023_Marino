@@ -475,11 +475,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\thoma\\OneDrive\\Escritorio\\SP_07122023_MARINO\\Entidades\\Entidades.csproj",
+      "projectUniqueName": "C:\\Users\\thoma\\OneDrive\\Escritorio\\RSP_07122023_Marino\\Entidades\\Entidades.csproj",
       "projectName": "Entidades",
-      "projectPath": "C:\\Users\\thoma\\OneDrive\\Escritorio\\SP_07122023_MARINO\\Entidades\\Entidades.csproj",
+      "projectPath": "C:\\Users\\thoma\\OneDrive\\Escritorio\\RSP_07122023_Marino\\Entidades\\Entidades.csproj",
       "packagesPath": "C:\\Users\\thoma\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\thoma\\OneDrive\\Escritorio\\SP_07122023_MARINO\\Entidades\\obj\\",
+      "outputPath": "C:\\Users\\thoma\\OneDrive\\Escritorio\\RSP_07122023_Marino\\Entidades\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\thoma\\AppData\\Roaming\\NuGet\\NuGet.Config",

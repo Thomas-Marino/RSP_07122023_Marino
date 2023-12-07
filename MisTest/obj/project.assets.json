@@ -6794,11 +6794,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\thoma\\OneDrive\\Escritorio\\SP_07122023_MARINO\\MisTest\\MisTest.csproj",
+      "projectUniqueName": "C:\\Users\\thoma\\OneDrive\\Escritorio\\RSP_07122023_Marino\\MisTest\\MisTest.csproj",
       "projectName": "MisTest",
-      "projectPath": "C:\\Users\\thoma\\OneDrive\\Escritorio\\SP_07122023_MARINO\\MisTest\\MisTest.csproj",
+      "projectPath": "C:\\Users\\thoma\\OneDrive\\Escritorio\\RSP_07122023_Marino\\MisTest\\MisTest.csproj",
       "packagesPath": "C:\\Users\\thoma\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\thoma\\OneDrive\\Escritorio\\SP_07122023_MARINO\\MisTest\\obj\\",
+      "outputPath": "C:\\Users\\thoma\\OneDrive\\Escritorio\\RSP_07122023_Marino\\MisTest\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\thoma\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -6815,8 +6815,8 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "projectReferences": {
-            "C:\\Users\\thoma\\OneDrive\\Escritorio\\SP_07122023_MARINO\\Entidades\\Entidades.csproj": {
-              "projectPath": "C:\\Users\\thoma\\OneDrive\\Escritorio\\SP_07122023_MARINO\\Entidades\\Entidades.csproj"
+            "C:\\Users\\thoma\\OneDrive\\Escritorio\\RSP_07122023_Marino\\Entidades\\Entidades.csproj": {
+              "projectPath": "C:\\Users\\thoma\\OneDrive\\Escritorio\\RSP_07122023_Marino\\Entidades\\Entidades.csproj"
             }
           }
         }

@@ -7,7 +7,7 @@ using Entidades.Interfaces;
 namespace Entidades.Modelos
 {
     public delegate void DelegadoDemoraAtencion(double demora);
-    public delegate void DelegadoNuevoIngreso(IComestible menu);
+    public delegate void DelegadoPedidoEnCurso(IComestible menu);
 
     public class Cocinero<T> where T : IComestible, new()
     {
@@ -16,16 +16,21 @@ namespace Entidades.Modelos
         private int cantPedidosFinalizados;
         private double demoraPreparacionTotal;
 
-        private T menu;
+        private Mozo<T> mozo;
         private string nombre;
+        private T pedidoEnPreparacion;
+        private Queue<T> pedidos;
         private Task tarea;
 
         public event DelegadoDemoraAtencion OnDemora;
-        public event DelegadoNuevoIngreso OnIngreso;
+        public event DelegadoPedidoEnCurso OnPedido;
 
         public Cocinero(string nombre)
         {
+            this.mozo = new Mozo<T>();
             this.nombre = nombre;
+            this.pedidos = new Queue<T>();
+            this.mozo.OnPedido += this.TomarNuevoPedido;
         }
 
         //No hacer nada
@@ -42,11 +47,13 @@ namespace Entidades.Modelos
                 if (value && !this.HabilitarCocina)
                 {
                     this.cancellation = new CancellationTokenSource();
-                    this.IniciarIngreso();
+                    this.mozo.EmpezarATrabajar = true;
+                    this.EmpezarACocinar();
                 }
                 else
                 {
                     this.cancellation.Cancel();
+                    this.mozo.EmpezarATrabajar = false;
                 }
             }
         }
@@ -56,37 +63,37 @@ namespace Entidades.Modelos
         public string Nombre { get => nombre; }
         public int CantPedidosFinalizados { get => cantPedidosFinalizados; }
 
+        public Queue<T> Pedidos
+        {
+            get => pedidos;
+        }
+
         #region "Métodos"
-        /// <summary>
-        /// Ejecutará en un hilo secundario la accion de: NotificarNuevoIngreso, EsperarProximoIngreso, incrementará
-        /// la cantidad de pedidos finalizados en 1 luego de esperar al proximo ingreso y guardará el ticket en la BD.
-        /// </summary>
-        private void IniciarIngreso()
+
+        private void EmpezarACocinar()
         {
             this.tarea = Task.Run(() =>
             {
                 while (!this.cancellation.IsCancellationRequested)
                 {
-                    this.NotificarNuevoIngreso(); // Metodo que instanciará e invocará un nuevo menu
-                    this.EsperarProximoIngreso();
-                    this.cantPedidosFinalizados += 1;
-                    DataBaseManager.GuardarTicket(this.nombre, this.menu);
+                    if (this.pedidos.Count > 0)
+                    {
+                        this.pedidoEnPreparacion = this.pedidos.Dequeue();
+                        this.OnPedido.Invoke(pedidoEnPreparacion);
+                        EsperarProximoIngreso();
+                        this.cantPedidosFinalizados += 1;
+                        try
+                        {
+                            DataBaseManager.GuardarTicket(this.nombre, this.pedidoEnPreparacion);
+                        }
+                        catch (DataBaseManagerException DBexception)
+                        {
+                            throw new DataBaseManagerException(DBexception.Message);
+                        }
+                    }
                 }
             }, this.cancellation.Token);
-        }
 
-        /// <summary>
-        /// Método encargado de verificar si el evento OnIngreso posee suscriptores.
-        /// En caso exitoso instanciará un nuevo menú, iniciará la preparación del menú y notificará el menú.
-        /// </summary>
-        private void NotificarNuevoIngreso()
-        {
-            if (this.OnIngreso is not null)
-            {
-                menu = new T();
-                menu.IniciarPreparacion();
-                this.OnIngreso.Invoke(menu);
-            }
         }
 
         /// <summary>
@@ -102,7 +109,7 @@ namespace Entidades.Modelos
 
             if (this.OnDemora is not null)
             {
-                while (this.menu.Estado == false && !this.cancellation.IsCancellationRequested)
+                while (this.mozo.EmpezarATrabajar == false && !this.cancellation.IsCancellationRequested)
                 {
                     Thread.Sleep(1000);
                     tiempoEspera++;
@@ -111,6 +118,14 @@ namespace Entidades.Modelos
             }
 
             this.demoraPreparacionTotal += tiempoEspera;
+        }
+
+        private void TomarNuevoPedido(T menu)
+        {
+            if (this.OnPedido is not null)
+            {
+                this.pedidos.Enqueue(menu);
+            }
         }
         #endregion
     }
